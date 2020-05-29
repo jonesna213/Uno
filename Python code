@@ -1,0 +1,344 @@
+import random
+print("This is just a normal game of UNO you will be dealt cards and you can only lay down cards that match either the color or number of the card that is already down, the goal is to run out of cards before your opponent does. if one player you will go first and the computer will go after. But if two player the first player will go first and second after")
+gamemode = int(input("One or Two player (type the number 1 or 2)"))
+Deck_Of_Cards = ['Red 0','Red 1','Red 2','Red 3','Red 4','Red 5','Red 6','Red 7','Red 8','Red 9','Red 1','Red 2','Red 3','Red 4','Red 5','Red 6','Red 7','Red 8','Red 9','Yellow 0','Yellow 1','Yellow 2','Yellow 3','Yellow 4','Yellow 5','Yellow 6','Yellow 7','Yellow 8','Yellow 9','Yellow 1','Yellow 2','Yellow 3','Yellow 4','Yellow 5','Yellow 6','Yellow 7','Yellow 8','Yellow 9','Blue 0','Blue 1','Blue 2','Blue 3','Blue 4','Blue 5','Blue 6','Blue 7','Blue 8','Blue 9','Blue 1','Blue 2','Blue 3','Blue 4','Blue 5','Blue 6','Blue 7','Blue 8','Blue 9','Green 0','Green 1','Green 2','Green 3','Green 4','Green 5','Green 6','Green 7','Green 8','Green 9','Green 1','Green 2','Green 3','Green 4','Green 5','Green 6','Green 7','Green 8','Green 9','Red Draw 2','Yellow Draw 2','Blue Draw 2','Green Draw 2','Red Draw 2','Yellow Draw 2','Blue Draw 2','Green Draw 2','Red Reverse','Yellow Reverse','Blue Reverse','Green Reverse','Red Reverse','Yellow Reverse','Blue Reverse','Green Reverse','Red Skip','Yellow Skip','Blue Skip','Green Skip','Red Skip','Yellow Skip','Blue Skip','Green Skip','Wild','Wild Draw 4','Wild','Wild Draw 4','Wild','Wild Draw 4','Wild','Wild Draw 4']
+gameover = False
+Pile = ''
+if gamemode == 1:
+  player1_name = input("Player 1 what is your name")
+  computer_name = input("What do you wants the computers name to be")
+  player2_name = ""
+if gamemode == 2:
+  player1_name = input("Player 1 what is your name")
+  player2_name = input("Player 2 what is your name")
+  computer_name = ""
+player1_hand = []
+player2_hand = []
+computer_hand = []
+player1_redo = False
+player2_redo = False
+computer_redo = False
+
+#Shuffles the deck
+def Shuffler(Deck):
+  random.shuffle(Deck)
+  return Deck
+  
+#deals the deck at start of game  
+def dealer(hand):
+  while len(hand) < 7:
+    x = random.randint(0,len(Deck_Of_Cards) - 1)
+    hand.append(Deck_Of_Cards[x])
+    del Deck_Of_Cards[x]
+
+#prints out all the cards in users hand
+def print_out_cards(hand):
+  x = ''
+  for i in range(0,len(hand)):
+    x += str(hand[i]) + '   '
+  print(x)
+  
+#puts the card that user chooses to put on the top of the deck
+def lay_card(hand,name,x):
+  global Pile
+  global player1_redo
+  global player2_redo
+  global computer_redo
+  Stop = False
+  z = Pile.split()
+  while Stop == False:
+    
+    y = x.split()
+    if x == "Draw" or x == "draw":
+      if name == player1_name:
+        player1_redo = True
+      if name == player2_name:
+        player2_redo = True
+      if name == computer_name:
+        computer_redo = True
+    
+    if x not in hand:
+      Stop = True
+      print(name + " You do not have that card please pick another")
+      if name == player1_name:
+        player1_redo = True
+      if name == player2_name:
+        player2_redo = True
+      if name == computer_name:
+        computer_redo = True
+        
+    elif x == "Wild Draw 4" or x == "Wild":
+      Stop = True
+      print("You layed down a " + x)
+      Pile = x
+      hand.remove(x)
+    elif y[-1] == z[-1] or y[0] == z[0]:
+      print("You layed down a " + x)
+      Pile = x
+      hand.remove(x)
+      Stop = True
+    else:
+      print("That Card does not match the pile card")
+
+#draws a card from the deck of cards
+def draw_card(hand):
+  x = random.randint(0,len(Deck_Of_Cards) - 1)
+  hand.append(Deck_Of_Cards[x])
+  del Deck_Of_Cards[x]
+
+#does the computers turn
+def computer_turn():
+  global Pile
+  pos_cards = []
+  wild_cards = []
+  p = Pile.split()
+  for j in range(0,len(computer_hand) - 1):
+    if computer_hand[j] == "Wild" or computer_hand[j] == "Wild Draw 4":
+      wild_cards.append(computer_hand[j])
+    h = computer_hand[j].split()
+    if h[0] == p[0] or h[-1] == p[-1]:
+      pos_cards.append(computer_hand[j])
+  if len(pos_cards) == 0 and len(wild_cards) == 0:
+    draw_card(computer_hand)
+    print(computer_name + " Drew a card")
+  if len(pos_cards) == 0 and len(wild_cards) > 0:
+    x = random.randint(0,len(wild_cards) - 1)
+    Pile = wild_cards[x]
+    computer_hand.remove(wild_cards[x])
+    print(computer_name + " Placed a " + wild_cards[x])
+  if len(pos_cards) > 0 and len(wild_cards) >= 0:
+    x = random.randint(0,len(pos_cards) - 1)
+    Pile = pos_cards[x]
+    computer_hand.remove(pos_cards[x])  
+    print(computer_name + " Placed a " + pos_cards[x])
+  
+#picks color for wild card for computer
+def computer_color_picker():  
+  r = 0
+  g = 0
+  y = 0
+  b = 0
+  chosen = ''
+  colors = ['Red','Yellow','Green','Blue']
+  for i in range(0,len(computer_hand) - 1):
+    if computer_hand[i][0] == "R":
+      r += 1
+    if computer_hand[i][0] == "G":
+      g += 1
+    if computer_hand[i][0] == "Y":
+      y += 1
+    if computer_hand[i][0] == "B":
+      b += 1
+  if r > g and y and b:
+    chosen = "Red"
+  if g > r and y and b:
+    chosen = "Green"
+  if y > g and r and b:
+    chosen = "Yellow"
+  if b > y and g and r:
+    chosen = "Blue"
+  else:
+    chosen = colors[random.randint(0,4)]
+  return chosen
+
+#sees if someone has UNO
+def Uno(hand,name):
+  if len(hand) == 1:
+    print(name + " Has UNO!")
+  
+#does the stuff for special cards
+def check(opponent_hand,opponent_name,player_name):
+  global Pile
+  global player1_redo
+  global player2_redo
+  global computer_redo
+  
+  if Pile == "Red Draw 2" or Pile == "Blue Draw 2" or Pile == "Yellow Draw 2" or Pile == "Green Draw 2":
+    print(opponent_name + " You had to draw two cards and you lost a turn")
+    for i in range(0,2):
+      x = random.randint(0,len(Deck_Of_Cards) - 1)
+      opponent_hand.append(Deck_Of_Cards[x])
+      del Deck_Of_Cards[x]
+    if player_name == player1_name:
+      player1_redo = True
+    elif player_name == player2_name:
+      player2_redo = True
+    elif player_name == computer_name:
+      computer_redo = True
+  
+  if Pile == "Red Reverse" or Pile == "Blue Reverse" or Pile == "Yellow Reverse" or Pile == "Green Reverse":
+    print("REVERSE")
+    if player_name == player1_name:
+      player1_redo = True
+    if player_name == player2_name:
+      player2_redo = True
+    if player_name == computer_name:
+      computer_redo = True
+    
+  if Pile == "Red Skip" or Pile == "Blue Skip" or Pile == "Yellow Skip" or Pile == "Green Skip":
+    print(opponent_name + " You have been skipped")
+    if player_name == player1_name:
+      player1_redo = True
+    if player_name == player2_name:
+      player2_redo = True
+    if player_name == computer_name:
+      computer_redo = True
+    
+  if Pile == "Wild":
+    if player_name == computer_name:
+      y = computer_color_picker()
+    else:
+      y = input("What color do you want it to be? (Red, Yellow, Blue, Green) <---(Type Exactly like that)")
+    Pile = y
+    print("The color is now " + y)
+    
+  if Pile == "Wild Draw 4":
+    if player_name == computer_name:
+      y = computer_color_picker()
+    else:
+      y = input("What color do you want it to be? (Red, Yellow, Blue, Green) <---(Type Exactly like that)")
+    Pile = y
+    print("The color is now " + y)
+    for i in range(0,4):
+      x = random.randint(0,len(Deck_Of_Cards) - 1)
+      opponent_hand.append(Deck_Of_Cards[x])
+      del Deck_Of_Cards[x]
+    print(opponent_name + " had to draw 4 cards and " + player_name + " you get to go again")
+    if player_name == player1_name:
+      player1_redo = True
+    if player_name == player2_name:
+      player2_redo = True
+    if player_name == computer_name:
+      computer_redo = True
+  
+#determains if their is a winner
+def winner(p1_hand,p2_hand,p1_name,p2_name):
+  global gameover
+  global player1_redo
+  global player2_redo
+  if len(p1_hand) == 0:
+    gameover = True
+    print(p1_name + " You win!")
+    player1_redo = True
+  if len(p2_hand) == 0:
+    gameover = True
+    print(p2_name + " You win!")
+    player2_redo = True
+
+#game loop for one player
+def one_player_gameloop():
+  global Pile
+  global player1_redo
+  global computer_redo
+  Shuffler(Deck_Of_Cards)
+  dealer(player1_hand)
+  dealer(computer_hand)
+  while Pile == '':
+    y = random.randint(0,len(Deck_Of_Cards) - 1)
+    if Deck_Of_Cards[y] == "Wild" or Deck_Of_Cards[y] == "Wild Draw 4":
+      continue
+    else:
+      Pile = Deck_Of_Cards[y]
+      del Deck_Of_Cards[y]
+  print(player1_name + " Your cards are")
+  print_out_cards(player1_hand)
+  
+  while gameover == False:
+    if computer_redo == False:
+      player1_redo = False
+      print("          Pile          ")
+      print("          " + Pile + "          ")
+      print_out_cards(player1_hand)
+      player1_input = input(player1_name + " What do you want to do? (Draw or Place)")
+      if player1_input == "Draw" or player1_input == "draw":
+        draw_card(player1_hand)
+        print(player1_name + " Drew a card")
+      elif player1_input == "Place" or player1_input == "place":
+        lay_card(player1_hand,player1_name,input(player1_name + " Which card do you want to lay down (Type the card as its shown)"))
+      else:
+        print("That is not a valid command. The valid commands are Place and Draw. Please try again.")
+        player1_redo = True
+      if player1_input == 'Place' or player1_input == 'place':
+        check(computer_hand,computer_name,player1_name)
+      Uno(player1_hand,player1_name)
+      winner(player1_hand,computer_hand,player1_name,computer_name)
+
+
+    if player1_redo == False:
+      x = Pile
+      computer_redo = False
+      computer_turn()
+      if Pile != x:
+        check(player1_hand,player1_name,computer_name)
+      Uno(player1_hand,player1_name)
+      winner(player1_hand,computer_hand,player1_name,computer_name)
+
+#game loop for 2 players
+def two_player_gameloop():
+  global Pile
+  global player1_redo
+  global player2_redo
+  #deals players cards and puts the starter card down
+  Shuffler(Deck_Of_Cards)
+  dealer(player1_hand)
+  dealer(player2_hand)
+  y = random.randint(0,len(Deck_Of_Cards) - 1)
+  Pile = Deck_Of_Cards[y]
+  del Deck_Of_Cards[y]
+  y_n = input(player1_name + " Do you want to see your cards now? (y or n)")
+  if y_n == 'y' or y_n == 'Y':
+    print(player1_name + ' Your cards are:')
+    print_out_cards(player1_hand)
+    for j in range(0,15):
+      print("")
+    print(player1_name + " Scroll up to see your cards")
+  y_n = input(player2_name + " Do you want to see your cards now? (y or n)")
+  if y_n == 'y' or y_n == 'Y':
+    print(player2_name + ' Your cards are:')
+    print_out_cards(player2_hand)
+    for i in range(0,15):
+      print("")
+    print(player2_name + " Scroll up to see your cards")
+    
+  while gameover == False:
+    if player2_redo == False:
+      player1_redo = False
+      print("          Pile          ")
+      print("          " + Pile + "          ")
+      player1_input = input(player1_name + " What do you want to do? (Draw or Place)")
+      if player1_input == "Draw" or player1_input == "draw":
+        draw_card(player1_hand)
+        print(player1_name + " Drew a card")
+      elif player1_input == "Place" or player1_input == "place":
+        print_out_cards(player1_hand)
+        lay_card(player1_hand,player1_name,input(player1_name + " Which card do you want to lay down (Type the card as its shown)"))
+        check(computer_hand,computer_name,player1_name)
+      else:
+        print("That is not a valid command. The valid commands are Place and Draw. Please try again.")
+        player1_redo = True
+      Uno(player1_hand,player1_name)
+      winner(player1_hand,player2_hand,player1_name,player2_name)
+
+    
+    if player1_redo == False:
+      player2_redo = False
+      print("          Pile          ")
+      print("          " + Pile + "          ")
+      player2_input = input(player2_name + " What do you want to do? (Draw or Place)")
+      if player2_input == "Draw" or player2_input == "draw":
+        draw_card(player2_hand)
+        print(player2_name + " Drew a card")
+      elif player2_input == "Place" or player2_input == "place":
+        print_out_cards(player2_hand)
+        lay_card(player2_hand,player2_name,input(player2_name + " Which card do you want to lay down (Type the card as its shown)"))
+        check(computer_hand,computer_name,player1_name)
+      else:
+        print("That is not a valid command. The valid commands are Place and Draw. Please Try again.")
+        player2_redo = True
+      Uno(player2_hand,player2_name)
+      winner(player1_hand,player2_hand,player1_name,player2_name)
+
+if gamemode == 1:
+  one_player_gameloop()
+if gamemode == 2:
+  two_player_gameloop()
